@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "TENXIKU Syndicate"
+version = "1.0.0"
+id = "artifacts/tenxiku"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24437
+
+[services.development]
+run = "pnpm --filter @workspace/tenxiku run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tenxiku", "run", "build" ]
+publicDir = "artifacts/tenxiku/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24437"
+BASE_PATH = "/"
