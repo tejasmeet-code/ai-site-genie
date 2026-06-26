@@ -2,25 +2,29 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
-// PORT and BASE_PATH are required by the Replit workflow but default for
-// production/Netlify builds where they are set via netlify.toml environment.
-const port = Number(process.env.PORT ?? "8080");
+const port = Number(process.env.PORT ?? 5173);
+
+if (Number.isNaN(port) || port <= 0) {
+  throw new Error(`Invalid PORT value: "${process.env.PORT}"`);
+}
+
 const basePath = process.env.BASE_PATH ?? "/";
-
-const isReplit =
-  process.env.REPL_ID !== undefined && process.env.NODE_ENV !== "production";
 
 export default defineConfig({
   base: basePath,
   plugins: [
     react(),
     tailwindcss(),
-    ...(isReplit
+    runtimeErrorOverlay(),
+    ...(process.env.NODE_ENV !== "production" &&
+    process.env.REPL_ID !== undefined
       ? [
-          (await import("@replit/vite-plugin-runtime-error-modal")).default(),
           await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer({ root: path.resolve(import.meta.dirname, "..") }),
+            m.cartographer({
+              root: path.resolve(import.meta.dirname, ".."),
+            }),
           ),
           await import("@replit/vite-plugin-dev-banner").then((m) =>
             m.devBanner(),
@@ -31,8 +35,12 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
-      // attached_assets is Replit-only; not present in GitHub / Netlify builds.
-      "@assets": path.resolve(import.meta.dirname, "src", "assets"),
+      "@assets": path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "attached_assets",
+      ),
     },
     dedupe: ["react", "react-dom"],
   },
@@ -47,7 +55,9 @@ export default defineConfig({
     host: "0.0.0.0",
     allowedHosts: true,
     hmr: { overlay: false },
-    fs: { strict: true },
+    fs: {
+      strict: true,
+    },
   },
   preview: {
     port,

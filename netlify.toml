@@ -1,15 +1,8 @@
 [build]
-  base    = "."
-  command = "npm install -g pnpm@10 && pnpm install --frozen-lockfile && pnpm --filter @workspace/tenxiku run build"
-  publish = "artifacts/tenxiku/dist/public"
-
-[build.environment]
-  NODE_VERSION = "20"
-  PORT         = "8080"
-  BASE_PATH    = "/"
-  NODE_ENV     = "production"
+command = "pnpm --filter @workspace/tenxiku... run build"
+publish = "artifacts/tenxiku/dist/public"
 
 [[redirects]]
-  from   = "/*"
-  to     = "/index.html"
-  status = 200
+from = "/*"
+to = "/index.html"
+status = 200
